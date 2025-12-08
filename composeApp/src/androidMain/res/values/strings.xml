@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HomeSvitlo</string>
+    <string name="widget_description">Показує поточний статус електроенергії та заряд батареї</string>
+    <string name="widget_name">Статус світла</string>
 </resources>

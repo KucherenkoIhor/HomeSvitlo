@@ -40,6 +40,16 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            
+            // WorkManager for background jobs
+            implementation(libs.androidx.work.runtime)
+            
+            // Glance for widgets
+            implementation(libs.androidx.glance)
+            implementation(libs.androidx.glance.appwidget)
+            
+            // DataStore for persistence
+            implementation(libs.androidx.datastore.preferences)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
