@@ -4,7 +4,8 @@ import WidgetKit
 
 class BackgroundTaskManager {
     static let shared = BackgroundTaskManager()
-    static let taskIdentifier = "com.home.svitlo.refresh"
+    static let refreshTaskIdentifier = "com.home.svitlo.refresh"
+    static let processingTaskIdentifier = "com.home.svitlo.processing"
     
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
@@ -13,27 +14,87 @@ class BackgroundTaskManager {
     private init() {}
     
     func registerBackgroundTask() {
+        // Register refresh task
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: Self.taskIdentifier,
+            forTaskWithIdentifier: Self.refreshTaskIdentifier,
             using: nil
         ) { task in
-            self.handleBackgroundTask(task: task as! BGAppRefreshTask)
+            self.handleRefreshTask(task: task as! BGAppRefreshTask)
         }
+        
+        // Register processing task (more reliable for periodic work)
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: Self.processingTaskIdentifier,
+            using: nil
+        ) { task in
+            self.handleProcessingTask(task: task as! BGProcessingTask)
+        }
+        
+        print("✅ Background tasks registered")
     }
     
     func scheduleBackgroundTask() {
-        // Cancel any existing pending tasks first
-        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.taskIdentifier)
+        scheduleRefreshTask()
+        scheduleProcessingTask()
+    }
+    
+    private func scheduleRefreshTask() {
+        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.refreshTaskIdentifier)
         
-        let request = BGAppRefreshTaskRequest(identifier: Self.taskIdentifier)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
+        let request = BGAppRefreshTaskRequest(identifier: Self.refreshTaskIdentifier)
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            let scheduledTime = Date(timeIntervalSinceNow: 15 * 60)
-            print("✅ Background task scheduled for: \(scheduledTime)")
+            print("✅ Refresh task scheduled for ~15 min")
         } catch {
-            print("❌ Failed to schedule background task: \(error.localizedDescription)")
+            print("❌ Failed to schedule refresh task: \(error)")
+        }
+    }
+    
+    private func scheduleProcessingTask() {
+        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.processingTaskIdentifier)
+        
+        let request = BGProcessingTaskRequest(identifier: Self.processingTaskIdentifier)
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
+        request.requiresNetworkConnectivity = true
+        request.requiresExternalPower = false
+        
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            print("✅ Processing task scheduled for ~15 min")
+        } catch {
+            print("❌ Failed to schedule processing task: \(error)")
+        }
+    }
+    
+    private func handleRefreshTask(task: BGAppRefreshTask) {
+        print("🔄 Refresh task started at \(Date())")
+        scheduleRefreshTask()
+        
+        task.expirationHandler = {
+            print("⚠️ Refresh task expired")
+            task.setTaskCompleted(success: false)
+        }
+        
+        fetchInverterStatus { success in
+            print("✅ Refresh task completed: \(success)")
+            task.setTaskCompleted(success: success)
+        }
+    }
+    
+    private func handleProcessingTask(task: BGProcessingTask) {
+        print("🔄 Processing task started at \(Date())")
+        scheduleProcessingTask()
+        
+        task.expirationHandler = {
+            print("⚠️ Processing task expired")
+            task.setTaskCompleted(success: false)
+        }
+        
+        fetchInverterStatus { success in
+            print("✅ Processing task completed: \(success)")
+            task.setTaskCompleted(success: success)
         }
     }
     

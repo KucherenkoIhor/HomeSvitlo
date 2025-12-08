@@ -12,6 +12,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.home.svitlo.refresh</string>
+		<string>com.home.svitlo.processing</string>
 	</array>
 </dict>
 </plist>
