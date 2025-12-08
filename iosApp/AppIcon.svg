@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#FFB800" rx="180" ry="180"/>
+  
+  <!-- House body -->
+  <path d="M512 220 L180 480 L180 800 L844 800 L844 480 Z" fill="#FFFFFF"/>
+  
+  <!-- House roof -->
+  <path d="M512 140 L100 440 L140 490 L512 220 L884 490 L924 440 Z" fill="#FFFFFF"/>
+  
+  <!-- Lightning bolt -->
+  <path d="M560 340 L440 540 L520 540 L460 720 L620 480 L530 480 L600 340 Z" fill="#FFB800"/>
+  
+  <!-- Sun rays -->
+  <line x1="512" y1="60" x2="512" y2="120" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="280" y1="140" x2="320" y2="180" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="744" y1="140" x2="704" y2="180" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="100" y1="360" x2="160" y2="360" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="864" y1="360" x2="924" y2="360" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+</svg>
+
