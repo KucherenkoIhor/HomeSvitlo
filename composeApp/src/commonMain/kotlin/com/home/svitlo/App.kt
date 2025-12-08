@@ -16,13 +16,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -205,8 +203,8 @@ private fun PowerOnScreen(data: InverterData) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Power and Battery info
-            PowerInfoRow(data)
+            // Battery info
+            BatteryInfo(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -268,8 +266,8 @@ private fun PowerOffScreen(data: InverterData) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Power and Battery info
-            PowerInfoRow(data)
+            // Battery info
+            BatteryInfo(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -340,8 +338,8 @@ private fun ProcessingScreen(data: InverterData) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Power and Battery info
-            PowerInfoRow(data)
+            // Battery info
+            BatteryInfo(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -355,50 +353,23 @@ private fun ProcessingScreen(data: InverterData) {
 }
 
 @Composable
-private fun PowerInfoRow(data: InverterData) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Power
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "⚡",
-                fontSize = 32.sp
-            )
-            Text(
-                text = "${data.acPower?.toInt() ?: 0} W",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Потужність",
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 14.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.width(48.dp))
-
-        // Battery
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "🔋",
-                fontSize = 32.sp
-            )
-            Text(
-                text = "${data.batteryCharge?.toInt() ?: 0}%",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Батарея",
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 14.sp
-            )
-        }
+private fun BatteryInfo(data: InverterData) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "🔋",
+            fontSize = 40.sp
+        )
+        Text(
+            text = "${data.batteryCharge?.toInt() ?: 0}%",
+            color = Color.White,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Батарея",
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 14.sp
+        )
     }
 }
 
