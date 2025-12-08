@@ -25,10 +25,17 @@ struct iOSApp: App {
             ContentView()
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .active {
+            switch newPhase {
+            case .active:
                 // Refresh data and widget when app becomes active
                 print("📱 App became active, refreshing...")
                 BackgroundTaskManager.shared.fetchInverterStatus()
+            case .background:
+                // Schedule background task when app goes to background
+                print("📱 App went to background, scheduling task...")
+                BackgroundTaskManager.shared.scheduleBackgroundTask()
+            default:
+                break
             }
         }
     }

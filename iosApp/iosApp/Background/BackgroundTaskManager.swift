@@ -22,12 +22,16 @@ class BackgroundTaskManager {
     }
     
     func scheduleBackgroundTask() {
+        // Cancel any existing pending tasks first
+        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.taskIdentifier)
+        
         let request = BGAppRefreshTaskRequest(identifier: Self.taskIdentifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("✅ Background task scheduled for 15 minutes")
+            let scheduledTime = Date(timeIntervalSinceNow: 15 * 60)
+            print("✅ Background task scheduled for: \(scheduledTime)")
         } catch {
             print("❌ Failed to schedule background task: \(error.localizedDescription)")
         }
