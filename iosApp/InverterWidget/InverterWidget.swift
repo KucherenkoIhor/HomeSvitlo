@@ -38,8 +38,8 @@ struct Provider: TimelineProvider {
             entries.append(entry)
         }
         
-        // Refresh timeline after 60 minutes
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 60, to: currentDate)!
+        // Request refresh after 15 minutes (iOS may delay this)
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
         completion(Timeline(entries: entries, policy: .after(nextUpdate)))
     }
     
