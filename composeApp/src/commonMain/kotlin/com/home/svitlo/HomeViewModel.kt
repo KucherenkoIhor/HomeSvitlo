@@ -2,6 +2,7 @@ package com.home.svitlo
 
 import com.home.svitlo.di.NetworkModule
 import com.home.svitlo.domain.model.InverterStatus
+import com.home.svitlo.domain.model.RateLimitException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 sealed interface HomeUiState {
     data object Loading : HomeUiState
     data class Success(val status: InverterStatus) : HomeUiState
+    data object RateLimited : HomeUiState
     data class Error(val message: String) : HomeUiState
 }
 
@@ -46,9 +48,10 @@ class HomeViewModel {
             result.onSuccess { status ->
                 _uiState.value = HomeUiState.Success(status)
             }.onFailure { error ->
-                _uiState.value = HomeUiState.Error(
-                    error.message ?: "Невідома помилка"
-                )
+                _uiState.value = when (error) {
+                    is RateLimitException -> HomeUiState.RateLimited
+                    else -> HomeUiState.Error(error.message ?: "Невідома помилка")
+                }
             }
 
             _isRefreshing.value = false

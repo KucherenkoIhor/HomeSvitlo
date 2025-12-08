@@ -80,6 +80,7 @@ fun App() {
                 when (state) {
                     is HomeUiState.Loading -> LoadingScreen()
                     is HomeUiState.Success -> StatusScreen(status = state.status)
+                    is HomeUiState.RateLimited -> RateLimitScreen()
                     is HomeUiState.Error -> ErrorScreen(message = state.message)
                 }
             }
@@ -348,6 +349,73 @@ private fun ProcessingScreen(status: InverterStatus) {
                 text = "Код: ${status.code}",
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Text(
+                text = "⬇️ Потягніть вниз для оновлення",
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 14.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun RateLimitScreen() {
+    val scrollState = rememberScrollState()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFFFF6F00), Color(0xFFE65100))
+                )
+            )
+            .verticalScroll(scrollState),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize().padding(32.dp)
+        ) {
+            // Animated hand gesture
+            val infiniteTransition = rememberInfiniteTransition(label = "wave")
+            val rotation by infiniteTransition.animateFloat(
+                initialValue = -20f,
+                targetValue = 20f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(300),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "rotation"
+            )
+
+            Text(
+                text = "🛑",
+                fontSize = 100.sp,
+                modifier = Modifier.rotate(rotation)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Забагато хочеш!",
+                color = Color.White,
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Зачекай хвилинку...",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 18.sp,
                 textAlign = TextAlign.Center
             )
 

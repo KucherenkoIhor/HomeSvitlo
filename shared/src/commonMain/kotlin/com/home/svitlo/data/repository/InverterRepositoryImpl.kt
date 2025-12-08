@@ -2,6 +2,7 @@ package com.home.svitlo.data.repository
 
 import com.home.svitlo.data.network.SolaxCloudApi
 import com.home.svitlo.domain.model.InverterStatus
+import com.home.svitlo.domain.model.RateLimitException
 import com.home.svitlo.domain.repository.InverterRepository
 
 class InverterRepositoryImpl(
@@ -12,13 +13,19 @@ class InverterRepositoryImpl(
         return try {
             val response = api.getRealtimeInfo(wifiSn = wifiSn, tokenId = tokenId)
             
-            if (response.success && response.result != null) {
-                val status = InverterStatus.fromCode(response.result.inverterStatus)
-                Result.success(status)
-            } else {
-                Result.failure(
-                    Exception(response.exception ?: "Unknown error occurred")
-                )
+            when {
+                response.isRateLimited -> {
+                    Result.failure(RateLimitException())
+                }
+                response.success && response.result != null -> {
+                    val status = InverterStatus.fromCode(response.result.inverterStatus)
+                    Result.success(status)
+                }
+                else -> {
+                    Result.failure(
+                        Exception(response.exception ?: "Unknown error occurred")
+                    )
+                }
             }
         } catch (e: Exception) {
             Result.failure(e)

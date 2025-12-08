@@ -5,10 +5,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RealtimeInfoResponse(
     val success: Boolean,
-    val exception: String?,
-    val result: RealtimeInfoResult?,
+    val exception: String? = null,
+    val result: RealtimeInfoResult? = null,
     val code: Int
-)
+) {
+    val isRateLimited: Boolean
+        get() = code == RATE_LIMIT_ERROR_CODE
+    
+    companion object {
+        const val RATE_LIMIT_ERROR_CODE = 104
+    }
+}
 
 @Serializable
 data class RealtimeInfoResult(
