@@ -76,9 +76,12 @@ class BackgroundTaskManager {
                     )
                 }
                 
-                // Update widget
+                // Update widget with specific kind for better reliability
+                WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
+                print("🔄 Widget timeline reloaded for InverterWidget")
+                
+                // Also reload all as backup
                 WidgetCenter.shared.reloadAllTimelines()
-                print("🔄 Widget timeline reloaded")
                 
                 completion?(true)
                 

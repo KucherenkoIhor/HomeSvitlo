@@ -7,6 +7,7 @@ struct InverterEntry: TimelineEntry {
     let statusText: String
     let batteryCharge: Int
     let backgroundColor: Color
+    let lastUpdated: Date?
 }
 
 struct Provider: TimelineProvider {
@@ -16,7 +17,8 @@ struct Provider: TimelineProvider {
             statusEmoji: "⏳",
             statusText: "Завантаження...",
             batteryCharge: 0,
-            backgroundColor: .purple
+            backgroundColor: .purple,
+            lastUpdated: nil
         )
     }
 
@@ -39,7 +41,8 @@ struct Provider: TimelineProvider {
                 statusEmoji: "❓",
                 statusText: "Немає даних",
                 batteryCharge: 0,
-                backgroundColor: .gray
+                backgroundColor: .gray,
+                lastUpdated: nil
             )
         }
         
@@ -49,7 +52,8 @@ struct Provider: TimelineProvider {
             statusEmoji: emoji,
             statusText: text,
             batteryCharge: Int(status.batteryCharge),
-            backgroundColor: color
+            backgroundColor: color,
+            lastUpdated: status.lastUpdated
         )
     }
     
@@ -73,11 +77,12 @@ struct StoredStatus: Codable {
 
 struct InverterWidgetEntryView: View {
     var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             Text(entry.statusEmoji)
-                .font(.system(size: 40))
+                .font(.system(size: family == .systemSmall ? 36 : 44))
             
             Text(entry.statusText)
                 .font(.headline)
@@ -87,15 +92,33 @@ struct InverterWidgetEntryView: View {
             
             HStack(spacing: 4) {
                 Text("🔋")
-                    .font(.system(size: 18))
+                    .font(.system(size: 16))
                 Text("\(entry.batteryCharge)%")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white)
             }
+            
+            if let lastUpdated = entry.lastUpdated {
+                Text(timeAgo(from: lastUpdated))
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
         }
         .padding()
         .containerBackground(entry.backgroundColor, for: .widget)
+    }
+    
+    private func timeAgo(from date: Date) -> String {
+        let minutes = Int(-date.timeIntervalSinceNow / 60)
+        if minutes < 1 {
+            return "щойно"
+        } else if minutes < 60 {
+            return "\(minutes) хв тому"
+        } else {
+            let hours = minutes / 60
+            return "\(hours) год тому"
+        }
     }
 }
 
@@ -115,6 +138,6 @@ struct InverterWidget: Widget {
 #Preview(as: .systemSmall) {
     InverterWidget()
 } timeline: {
-    InverterEntry(date: .now, statusEmoji: "☀️", statusText: "Світло є!", batteryCharge: 85, backgroundColor: Color(red: 0.2, green: 0.7, blue: 0.3))
-    InverterEntry(date: .now, statusEmoji: "🔌", statusText: "Світла немає!", batteryCharge: 45, backgroundColor: Color(red: 0.9, green: 0.2, blue: 0.2))
+    InverterEntry(date: .now, statusEmoji: "☀️", statusText: "Світло є!", batteryCharge: 85, backgroundColor: Color(red: 0.2, green: 0.7, blue: 0.3), lastUpdated: Date())
+    InverterEntry(date: .now, statusEmoji: "🔌", statusText: "Світла немає!", batteryCharge: 45, backgroundColor: Color(red: 0.9, green: 0.2, blue: 0.2), lastUpdated: Date().addingTimeInterval(-300))
 }
