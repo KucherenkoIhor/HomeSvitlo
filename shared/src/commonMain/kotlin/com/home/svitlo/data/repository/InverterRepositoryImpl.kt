@@ -21,7 +21,6 @@ class InverterRepositoryImpl(
                 response.success && response.result != null -> {
                     val data = InverterData(
                         status = InverterStatus.fromCode(response.result.inverterStatus),
-                        acPower = response.result.acpower,
                         batteryCharge = response.result.soc
                     )
                     Result.success(data)
