@@ -9,7 +9,6 @@ class BackgroundTaskManager {
     
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
-    private let inverterService = InverterService.shared
     
     private init() {}
     
@@ -49,6 +48,7 @@ class BackgroundTaskManager {
     
     func fetchInverterStatus(completion: ((Bool) -> Void)? = nil) {
         let previousStatusCode = storage.getPreviousStatusCode()
+        let inverterService = InverterServiceProvider.shared.service
         
         inverterService.fetchStatus { result in
             if result.isSuccess {

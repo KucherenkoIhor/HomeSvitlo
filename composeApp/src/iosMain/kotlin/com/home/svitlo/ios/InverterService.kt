@@ -65,9 +65,13 @@ class InverterService {
             }
         }
     }
-    
-    companion object {
-        val shared = InverterService()
-    }
+}
+
+/**
+ * Singleton instance accessible from Swift.
+ * Usage in Swift: InverterServiceProvider.shared.service
+ */
+object InverterServiceProvider {
+    val service = InverterService()
 }
 
