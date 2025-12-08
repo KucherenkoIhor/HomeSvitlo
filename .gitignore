@@ -20,6 +20,7 @@ local.properties
 keystore.properties
 *.keystore
 *.jks
+**/SecretConfig.kt
 
 # macOS
 .DS_Store
