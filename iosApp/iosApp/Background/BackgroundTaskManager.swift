@@ -1,6 +1,7 @@
 import Foundation
 import BackgroundTasks
 import WidgetKit
+import UserNotifications
 
 class BackgroundTaskManager {
     static let shared = BackgroundTaskManager()
@@ -70,6 +71,10 @@ class BackgroundTaskManager {
     
     private func handleRefreshTask(task: BGAppRefreshTask) {
         print("🔄 Refresh task started at \(Date())")
+        
+        // Send debug notification to confirm task ran
+        sendDebugNotification(message: "Background refresh task running")
+        
         scheduleRefreshTask()
         
         task.expirationHandler = {
@@ -85,6 +90,10 @@ class BackgroundTaskManager {
     
     private func handleProcessingTask(task: BGProcessingTask) {
         print("🔄 Processing task started at \(Date())")
+        
+        // Send debug notification to confirm task ran
+        sendDebugNotification(message: "Background processing task running")
+        
         scheduleProcessingTask()
         
         task.expirationHandler = {
@@ -96,6 +105,21 @@ class BackgroundTaskManager {
             print("✅ Processing task completed: \(success)")
             task.setTaskCompleted(success: success)
         }
+    }
+    
+    private func sendDebugNotification(message: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "🔧 Debug"
+        content.body = message
+        content.sound = .default
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request)
     }
     
     private func handleBackgroundTask(task: BGAppRefreshTask) {
