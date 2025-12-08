@@ -1,19 +1,65 @@
-*.iml
-.kotlin
-.gradle
+# Gradle
+.gradle/
+build/
 **/build/
-xcuserdata
 !src/**/build/
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+*.ipr
+*.iws
+
+# Kotlin/Native
+.cxx/
+.externalNativeBuild/
+
+# Local configuration
 local.properties
-.idea
+keystore.properties
+*.keystore
+*.jks
+
+# macOS
 .DS_Store
-captures
-.externalNativeBuild
-.cxx
+*.swp
+*~
+
+# Android
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# iOS/Xcode
+xcuserdata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
+*.xcuserstate
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+Pods/
+*.xcworkspace
+!*.xcodeproj/project.xcworkspace
+
+# Node (for tooling)
 node_modules/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Kotlin Multiplatform
+kotlin-js-store/
