@@ -1,6 +1,5 @@
 import Foundation
 import BackgroundTasks
-import ComposeApp
 import WidgetKit
 
 class BackgroundTaskManager {
@@ -9,6 +8,7 @@ class BackgroundTaskManager {
     
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
+    private let apiClient = SolaxApiClient.shared
     
     private init() {}
     
@@ -27,54 +27,65 @@ class BackgroundTaskManager {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("Background task scheduled")
+            print("✅ Background task scheduled for 15 minutes")
         } catch {
-            print("Failed to schedule background task: \(error.localizedDescription)")
+            print("❌ Failed to schedule background task: \(error.localizedDescription)")
         }
     }
     
     private func handleBackgroundTask(task: BGAppRefreshTask) {
+        print("🔄 Background task started")
+        
         // Schedule the next background task
         scheduleBackgroundTask()
         
         task.expirationHandler = {
+            print("⚠️ Background task expired")
             task.setTaskCompleted(success: false)
         }
         
         fetchInverterStatus { success in
+            print("✅ Background task completed: \(success)")
             task.setTaskCompleted(success: success)
         }
     }
     
     func fetchInverterStatus(completion: ((Bool) -> Void)? = nil) {
         let previousStatusCode = storage.getPreviousStatusCode()
-        let inverterService = InverterServiceProvider.shared.service
+        print("📡 Fetching inverter status... Previous: \(previousStatusCode ?? "none")")
         
-        inverterService.fetchStatus { result in
-            if result.isSuccess {
+        apiClient.fetchInverterStatus { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let data):
+                print("✅ API Response: status=\(data.statusCode), battery=\(data.batteryCharge)")
+                
                 // Save to storage
                 self.storage.saveStatus(
-                    statusCode: result.statusCode,
-                    batteryCharge: result.batteryCharge
+                    statusCode: data.statusCode,
+                    batteryCharge: data.batteryCharge
                 )
                 
                 // Check if status changed and show notification
-                if let previous = previousStatusCode, previous != result.statusCode {
+                if let previous = previousStatusCode, previous != data.statusCode {
+                    print("🔔 Status changed from \(previous) to \(data.statusCode), showing notification")
                     self.notificationHelper.showStatusChangeNotification(
-                        statusCode: result.statusCode,
-                        batteryCharge: result.batteryCharge
+                        statusCode: data.statusCode,
+                        batteryCharge: data.batteryCharge
                     )
                 }
                 
                 // Update widget
                 WidgetCenter.shared.reloadAllTimelines()
+                print("🔄 Widget timeline reloaded")
                 
                 completion?(true)
-            } else {
-                print("Failed to fetch status: \(result.errorMessage ?? "Unknown error")")
+                
+            case .failure(let error):
+                print("❌ Failed to fetch status: \(error.localizedDescription)")
                 completion?(false)
             }
         }
     }
 }
-
