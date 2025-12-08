@@ -1,5 +1,6 @@
 package com.home.svitlo
 
+import com.home.svitlo.config.AppConfig
 import com.home.svitlo.di.NetworkModule
 import com.home.svitlo.domain.model.InverterData
 import com.home.svitlo.domain.model.RateLimitException
@@ -41,8 +42,8 @@ class HomeViewModel {
     private fun fetchData() {
         scope.launch {
             val result = getInverterDataUseCase(
-                wifiSn = WIFI_SN,
-                tokenId = TOKEN_ID
+                wifiSn = AppConfig.wifiSn,
+                tokenId = AppConfig.tokenId
             )
 
             result.onSuccess { data ->
@@ -56,12 +57,6 @@ class HomeViewModel {
 
             _isRefreshing.value = false
         }
-    }
-
-    companion object {
-        // TODO: Move these to a secure configuration
-        private const val WIFI_SN = "SN6MBN9GUZ"
-        private const val TOKEN_ID = "20251208145659068702972"
     }
 }
 

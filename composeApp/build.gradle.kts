@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,6 +7,17 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
+
+// Load local.properties
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
+}
+
+val solaxWifiSn: String = localProperties.getProperty("SOLAX_WIFI_SN", "")
+val solaxTokenId: String = localProperties.getProperty("SOLAX_TOKEN_ID", "")
 
 kotlin {
     androidTarget {
@@ -56,6 +68,13 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        buildConfigField("String", "SOLAX_WIFI_SN", "\"$solaxWifiSn\"")
+        buildConfigField("String", "SOLAX_TOKEN_ID", "\"$solaxTokenId\"")
+    }
+    
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {
