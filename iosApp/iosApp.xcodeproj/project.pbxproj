@@ -6,11 +6,51 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D08C53C72EE6F87F004B6237 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D08C53C62EE6F87F004B6237 /* WidgetKit.framework */; };
+		D08C53C92EE6F87F004B6237 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D08C53C82EE6F87F004B6237 /* SwiftUI.framework */; };
+		D08C53D62EE6F880004B6237 /* InverterWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D08C53C42EE6F87F004B6237 /* InverterWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D08C53D42EE6F880004B6237 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C72B3E640063D1676048D55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D08C53C32EE6F87F004B6237;
+			remoteInfo = InverterWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D08C53DB2EE6F880004B6237 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D08C53D62EE6F880004B6237 /* InverterWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D08C53C42EE6F87F004B6237 /* InverterWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = InverterWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D08C53C62EE6F87F004B6237 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D08C53C82EE6F87F004B6237 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E6513D15DC36C3AAF48C9502 /* HomeSvitlo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeSvitlo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D08C53DA2EE6F880004B6237 /* Exceptions for "InverterWidget" folder in "InverterWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D08C53C32EE6F87F004B6237 /* InverterWidgetExtension */;
+		};
 		E80F66DE49B0D30EE5F9BC6C /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -34,6 +74,14 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
+		D08C53CA2EE6F87F004B6237 /* InverterWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D08C53DA2EE6F880004B6237 /* Exceptions for "InverterWidget" folder in "InverterWidgetExtension" target */,
+			);
+			path = InverterWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +92,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D08C53C12EE6F87F004B6237 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D08C53C92EE6F87F004B6237 /* SwiftUI.framework in Frameworks */,
+				D08C53C72EE6F87F004B6237 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -51,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				E6513D15DC36C3AAF48C9502 /* HomeSvitlo.app */,
+				D08C53C42EE6F87F004B6237 /* InverterWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -60,8 +118,19 @@
 			children = (
 				15BCE726817049468137D9BE /* Configuration */,
 				0E9F27DF56EF798B7BD92721 /* iosApp */,
+				D08C53CA2EE6F87F004B6237 /* InverterWidget */,
+				D08C53C52EE6F87F004B6237 /* Frameworks */,
 				5C150000D285524BEE0A8CA0 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		D08C53C52EE6F87F004B6237 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D08C53C62EE6F87F004B6237 /* WidgetKit.framework */,
+				D08C53C82EE6F87F004B6237 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -75,10 +144,12 @@
 				E620A8F9589DCF29DB29BB82 /* Sources */,
 				42582997B5C2615134FDE0EF /* Frameworks */,
 				CF90A9B6957C536BA0464954 /* Resources */,
+				D08C53DB2EE6F880004B6237 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D08C53D52EE6F880004B6237 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0E9F27DF56EF798B7BD92721 /* iosApp */,
@@ -90,6 +161,28 @@
 			productReference = E6513D15DC36C3AAF48C9502 /* HomeSvitlo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D08C53C32EE6F87F004B6237 /* InverterWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D08C53D72EE6F880004B6237 /* Build configuration list for PBXNativeTarget "InverterWidgetExtension" */;
+			buildPhases = (
+				D08C53C02EE6F87F004B6237 /* Sources */,
+				D08C53C12EE6F87F004B6237 /* Frameworks */,
+				D08C53C22EE6F87F004B6237 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D08C53CA2EE6F87F004B6237 /* InverterWidget */,
+			);
+			name = InverterWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = InverterWidgetExtension;
+			productReference = D08C53C42EE6F87F004B6237 /* InverterWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -97,11 +190,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					0D2FEF144F688B9FA1B08009 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					D08C53C32EE6F87F004B6237 = {
+						CreatedOnToolsVersion = 26.1.1;
 					};
 				};
 			};
@@ -120,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				0D2FEF144F688B9FA1B08009 /* iosApp */,
+				D08C53C32EE6F87F004B6237 /* InverterWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CF90A9B6957C536BA0464954 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D08C53C22EE6F87F004B6237 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -157,6 +261,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D08C53C02EE6F87F004B6237 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E620A8F9589DCF29DB29BB82 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -165,6 +276,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D08C53D52EE6F880004B6237 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D08C53C32EE6F87F004B6237 /* InverterWidgetExtension */;
+			targetProxy = D08C53D42EE6F880004B6237 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A82E501DC3DE199FCCE43F03 /* Debug */ = {
@@ -364,6 +483,72 @@
 			};
 			name = Release;
 		};
+		D08C53D82EE6F880004B6237 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6356A75R69;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = InverterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = InverterWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.home.svitlo.HomeSvitlo.InverterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D08C53D92EE6F880004B6237 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6356A75R69;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = InverterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = InverterWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.home.svitlo.HomeSvitlo.InverterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -372,6 +557,15 @@
 			buildConfigurations = (
 				BEC04751EC4D737F328A053B /* Debug */,
 				C2FCB4E64344EBE274BCD072 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D08C53D72EE6F880004B6237 /* Build configuration list for PBXNativeTarget "InverterWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D08C53D82EE6F880004B6237 /* Debug */,
+				D08C53D92EE6F880004B6237 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -3,7 +3,6 @@ import SwiftUI
 
 struct InverterEntry: TimelineEntry {
     let date: Date
-    let statusCode: String
     let statusEmoji: String
     let statusText: String
     let batteryCharge: Int
@@ -14,48 +13,39 @@ struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> InverterEntry {
         InverterEntry(
             date: Date(),
-            statusCode: "",
             statusEmoji: "⏳",
             statusText: "Завантаження...",
             batteryCharge: 0,
-            backgroundColor: Color.purple
+            backgroundColor: .purple
         )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (InverterEntry) -> ()) {
-        let entry = createEntry()
-        completion(entry)
+        completion(createEntry())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<InverterEntry>) -> ()) {
         let entry = createEntry()
-        
-        // Update every 15 minutes
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
+        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
     }
     
     private func createEntry() -> InverterEntry {
-        // Read from App Group UserDefaults
         guard let userDefaults = UserDefaults(suiteName: "group.com.home.svitlo"),
               let data = userDefaults.data(forKey: "inverter_status"),
               let status = try? JSONDecoder().decode(StoredStatus.self, from: data) else {
             return InverterEntry(
                 date: Date(),
-                statusCode: "",
                 statusEmoji: "❓",
                 statusText: "Немає даних",
                 batteryCharge: 0,
-                backgroundColor: Color.gray
+                backgroundColor: .gray
             )
         }
         
         let (emoji, text, color) = getStatusDisplay(statusCode: status.statusCode)
-        
         return InverterEntry(
             date: Date(),
-            statusCode: status.statusCode,
             statusEmoji: emoji,
             statusText: text,
             batteryCharge: Int(status.batteryCharge),
@@ -66,11 +56,11 @@ struct Provider: TimelineProvider {
     private func getStatusDisplay(statusCode: String) -> (String, String, Color) {
         switch statusCode {
         case "102": // NORMAL
-            return ("☀️", "Світло є!", Color(red: 0.43, green: 0.78, blue: 1.0))
+            return ("☀️", "Світло є!", Color(red: 0.2, green: 0.7, blue: 0.3))
         case "107": // OFF_GRID
-            return ("🔌", "Світла немає!", Color(red: 0.90, green: 0.22, blue: 0.21))
+            return ("🔌", "Світла немає!", Color(red: 0.9, green: 0.2, blue: 0.2))
         default:
-            return ("🔄", "Обробка...", Color(red: 0.49, green: 0.30, blue: 1.0))
+            return ("🔄", "Обробка...", Color(red: 0.5, green: 0.3, blue: 1.0))
         }
     }
 }
@@ -120,7 +110,7 @@ struct InverterWidget: Widget {
             InverterWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Статус світла")
-        .description("Показує поточний статус електроенергії та заряд батареї")
+        .description("Показує статус електроенергії та заряд батареї")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -128,21 +118,6 @@ struct InverterWidget: Widget {
 #Preview(as: .systemSmall) {
     InverterWidget()
 } timeline: {
-    InverterEntry(
-        date: .now,
-        statusCode: "102",
-        statusEmoji: "☀️",
-        statusText: "Світло є!",
-        batteryCharge: 85,
-        backgroundColor: Color(red: 0.43, green: 0.78, blue: 1.0)
-    )
-    InverterEntry(
-        date: .now,
-        statusCode: "107",
-        statusEmoji: "🔌",
-        statusText: "Світла немає!",
-        batteryCharge: 45,
-        backgroundColor: Color(red: 0.90, green: 0.22, blue: 0.21)
-    )
+    InverterEntry(date: .now, statusEmoji: "☀️", statusText: "Світло є!", batteryCharge: 85, backgroundColor: Color(red: 0.2, green: 0.7, blue: 0.3))
+    InverterEntry(date: .now, statusEmoji: "🔌", statusText: "Світла немає!", batteryCharge: 45, backgroundColor: Color(red: 0.9, green: 0.2, blue: 0.2))
 }
-

@@ -7,4 +7,3 @@ struct InverterWidgetBundle: WidgetBundle {
         InverterWidget()
     }
 }
-
