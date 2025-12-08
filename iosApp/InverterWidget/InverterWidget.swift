@@ -75,30 +75,27 @@ struct InverterWidgetEntryView: View {
     var entry: Provider.Entry
     
     var body: some View {
-        ZStack {
-            entry.backgroundColor
+        VStack(spacing: 8) {
+            Text(entry.statusEmoji)
+                .font(.system(size: 40))
             
-            VStack(spacing: 8) {
-                Text(entry.statusEmoji)
-                    .font(.system(size: 40))
-                
-                Text(entry.statusText)
-                    .font(.headline)
-                    .fontWeight(.bold)
+            Text(entry.statusText)
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+            
+            HStack(spacing: 4) {
+                Text("🔋")
+                    .font(.system(size: 18))
+                Text("\(entry.batteryCharge)%")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                
-                HStack(spacing: 4) {
-                    Text("🔋")
-                        .font(.system(size: 18))
-                    Text("\(entry.batteryCharge)%")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                }
             }
-            .padding()
         }
+        .padding()
+        .containerBackground(entry.backgroundColor, for: .widget)
     }
 }
 
