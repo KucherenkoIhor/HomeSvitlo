@@ -4,7 +4,7 @@ import com.home.svitlo.data.network.SolaxCloudApi
 import com.home.svitlo.data.network.createHttpClient
 import com.home.svitlo.data.repository.InverterRepositoryImpl
 import com.home.svitlo.domain.repository.InverterRepository
-import com.home.svitlo.domain.usecase.GetInverterStatusUseCase
+import com.home.svitlo.domain.usecase.GetInverterDataUseCase
 
 /**
  * Simple dependency provider for network and domain layer components.
@@ -20,8 +20,8 @@ object NetworkModule {
         InverterRepositoryImpl(solaxCloudApi)
     }
     
-    val getInverterStatusUseCase by lazy {
-        GetInverterStatusUseCase(inverterRepository)
+    val getInverterDataUseCase by lazy {
+        GetInverterDataUseCase(inverterRepository)
     }
 }
 

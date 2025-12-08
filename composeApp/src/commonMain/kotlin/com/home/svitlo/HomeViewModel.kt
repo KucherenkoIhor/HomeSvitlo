@@ -1,7 +1,7 @@
 package com.home.svitlo
 
 import com.home.svitlo.di.NetworkModule
-import com.home.svitlo.domain.model.InverterStatus
+import com.home.svitlo.domain.model.InverterData
 import com.home.svitlo.domain.model.RateLimitException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 sealed interface HomeUiState {
     data object Loading : HomeUiState
-    data class Success(val status: InverterStatus) : HomeUiState
+    data class Success(val data: InverterData) : HomeUiState
     data object RateLimited : HomeUiState
     data class Error(val message: String) : HomeUiState
 }
@@ -21,7 +21,7 @@ sealed interface HomeUiState {
 class HomeViewModel {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val getInverterStatusUseCase = NetworkModule.getInverterStatusUseCase
+    private val getInverterDataUseCase = NetworkModule.getInverterDataUseCase
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -30,23 +30,23 @@ class HomeViewModel {
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     init {
-        fetchStatus()
+        fetchData()
     }
 
     fun refresh() {
         _isRefreshing.value = true
-        fetchStatus()
+        fetchData()
     }
 
-    private fun fetchStatus() {
+    private fun fetchData() {
         scope.launch {
-            val result = getInverterStatusUseCase(
+            val result = getInverterDataUseCase(
                 wifiSn = WIFI_SN,
                 tokenId = TOKEN_ID
             )
 
-            result.onSuccess { status ->
-                _uiState.value = HomeUiState.Success(status)
+            result.onSuccess { data ->
+                _uiState.value = HomeUiState.Success(data)
             }.onFailure { error ->
                 _uiState.value = when (error) {
                     is RateLimitException -> HomeUiState.RateLimited

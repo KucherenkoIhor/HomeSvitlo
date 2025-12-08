@@ -1,6 +1,7 @@
 package com.home.svitlo.data.repository
 
 import com.home.svitlo.data.network.SolaxCloudApi
+import com.home.svitlo.domain.model.InverterData
 import com.home.svitlo.domain.model.InverterStatus
 import com.home.svitlo.domain.model.RateLimitException
 import com.home.svitlo.domain.repository.InverterRepository
@@ -9,7 +10,7 @@ class InverterRepositoryImpl(
     private val api: SolaxCloudApi
 ) : InverterRepository {
 
-    override suspend fun getInverterStatus(wifiSn: String, tokenId: String): Result<InverterStatus> {
+    override suspend fun getInverterData(wifiSn: String, tokenId: String): Result<InverterData> {
         return try {
             val response = api.getRealtimeInfo(wifiSn = wifiSn, tokenId = tokenId)
             
@@ -18,8 +19,12 @@ class InverterRepositoryImpl(
                     Result.failure(RateLimitException())
                 }
                 response.success && response.result != null -> {
-                    val status = InverterStatus.fromCode(response.result.inverterStatus)
-                    Result.success(status)
+                    val data = InverterData(
+                        status = InverterStatus.fromCode(response.result.inverterStatus),
+                        acPower = response.result.acpower,
+                        batteryCharge = response.result.soc
+                    )
+                    Result.success(data)
                 }
                 else -> {
                     Result.failure(

@@ -16,11 +16,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.home.svitlo.domain.model.InverterData
 import com.home.svitlo.domain.model.InverterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -79,7 +82,7 @@ fun App() {
             ) { state ->
                 when (state) {
                     is HomeUiState.Loading -> LoadingScreen()
-                    is HomeUiState.Success -> StatusScreen(status = state.status)
+                    is HomeUiState.Success -> StatusScreen(data = state.data)
                     is HomeUiState.RateLimited -> RateLimitScreen()
                     is HomeUiState.Error -> ErrorScreen(message = state.message)
                 }
@@ -146,16 +149,16 @@ private fun LoadingScreen() {
 }
 
 @Composable
-private fun StatusScreen(status: InverterStatus) {
-    when (status) {
-        InverterStatus.NORMAL -> PowerOnScreen()
-        InverterStatus.OFF_GRID -> PowerOffScreen()
-        else -> ProcessingScreen(status = status)
+private fun StatusScreen(data: InverterData) {
+    when (data.status) {
+        InverterStatus.NORMAL -> PowerOnScreen(data)
+        InverterStatus.OFF_GRID -> PowerOffScreen(data)
+        else -> ProcessingScreen(data)
     }
 }
 
 @Composable
-private fun PowerOnScreen() {
+private fun PowerOnScreen(data: InverterData) {
     val scrollState = rememberScrollState()
     Box(
         modifier = Modifier
@@ -200,14 +203,10 @@ private fun PowerOnScreen() {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Інвертор працює нормально",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
+            // Power and Battery info
+            PowerInfoRow(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -221,7 +220,7 @@ private fun PowerOnScreen() {
 }
 
 @Composable
-private fun PowerOffScreen() {
+private fun PowerOffScreen(data: InverterData) {
     val scrollState = rememberScrollState()
     Box(
         modifier = Modifier
@@ -267,14 +266,10 @@ private fun PowerOffScreen() {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Працює автономний режим",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
+            // Power and Battery info
+            PowerInfoRow(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -288,7 +283,7 @@ private fun PowerOffScreen() {
 }
 
 @Composable
-private fun ProcessingScreen(status: InverterStatus) {
+private fun ProcessingScreen(data: InverterData) {
     val scrollState = rememberScrollState()
     Box(
         modifier = Modifier
@@ -337,26 +332,70 @@ private fun ProcessingScreen(status: InverterStatus) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = status.description,
+                text = data.status.description,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "Код: ${status.code}",
-                color = Color.White.copy(alpha = 0.6f),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
+            // Power and Battery info
+            PowerInfoRow(data)
 
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
                 text = "⬇️ Потягніть вниз для оновлення",
                 color = Color.White.copy(alpha = 0.5f),
+                fontSize = 14.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun PowerInfoRow(data: InverterData) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Power
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "⚡",
+                fontSize = 32.sp
+            )
+            Text(
+                text = "${data.acPower?.toInt() ?: 0} W",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Потужність",
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = 14.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.width(48.dp))
+
+        // Battery
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "🔋",
+                fontSize = 32.sp
+            )
+            Text(
+                text = "${data.batteryCharge?.toInt() ?: 0}%",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Батарея",
+                color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
         }
