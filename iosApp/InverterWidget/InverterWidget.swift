@@ -23,21 +23,32 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (InverterEntry) -> ()) {
-        completion(createEntry())
+        completion(createEntry(for: Date()))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<InverterEntry>) -> ()) {
-        let entry = createEntry()
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
-        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
+        let currentDate = Date()
+        var entries: [InverterEntry] = []
+        
+        // Create entries for the next 60 minutes (one per minute)
+        // This makes the "time ago" label update every minute
+        for minuteOffset in 0..<60 {
+            let entryDate = Calendar.current.date(byAdding: .minute, value: minuteOffset, to: currentDate)!
+            let entry = createEntry(for: entryDate)
+            entries.append(entry)
+        }
+        
+        // Refresh timeline after 60 minutes
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 60, to: currentDate)!
+        completion(Timeline(entries: entries, policy: .after(nextUpdate)))
     }
     
-    private func createEntry() -> InverterEntry {
+    private func createEntry(for date: Date) -> InverterEntry {
         guard let userDefaults = UserDefaults(suiteName: "group.com.home.svitlo"),
               let data = userDefaults.data(forKey: "inverter_status"),
               let status = try? JSONDecoder().decode(StoredStatus.self, from: data) else {
             return InverterEntry(
-                date: Date(),
+                date: date,
                 statusEmoji: "❓",
                 statusText: "Немає даних",
                 batteryCharge: 0,
@@ -48,7 +59,7 @@ struct Provider: TimelineProvider {
         
         let (emoji, text, color) = getStatusDisplay(statusCode: status.statusCode)
         return InverterEntry(
-            date: Date(),
+            date: date,
             statusEmoji: emoji,
             statusText: text,
             batteryCharge: Int(status.batteryCharge),
@@ -100,7 +111,7 @@ struct InverterWidgetEntryView: View {
             }
             
             if let lastUpdated = entry.lastUpdated {
-                Text(timeAgo(from: lastUpdated))
+                Text(timeAgo(from: lastUpdated, relativeTo: entry.date))
                     .font(.caption2)
                     .foregroundColor(.white.opacity(0.7))
             }
@@ -109,8 +120,8 @@ struct InverterWidgetEntryView: View {
         .containerBackground(entry.backgroundColor, for: .widget)
     }
     
-    private func timeAgo(from date: Date) -> String {
-        let minutes = Int(-date.timeIntervalSinceNow / 60)
+    private func timeAgo(from date: Date, relativeTo now: Date) -> String {
+        let minutes = Int(now.timeIntervalSince(date) / 60)
         if minutes < 1 {
             return "щойно"
         } else if minutes < 60 {
