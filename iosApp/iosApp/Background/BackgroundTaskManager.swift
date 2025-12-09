@@ -1,6 +1,7 @@
 import Foundation
 import BackgroundTasks
 import WidgetKit
+import ComposeApp
 
 class BackgroundTaskManager {
     static let shared = BackgroundTaskManager()
@@ -9,7 +10,7 @@ class BackgroundTaskManager {
     
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
-    private let apiClient = SolaxApiClient.shared
+    private let inverterService = InverterServiceProvider.shared.service
     
     private init() {}
     
@@ -89,22 +90,21 @@ class BackgroundTaskManager {
     func fetchInverterStatus(completion: ((Bool) -> Void)? = nil) {
         let previousStatusCode = storage.getPreviousStatusCode()
         
-        apiClient.fetchInverterStatus { [weak self] result in
+        inverterService.fetchStatus { [weak self] result in
             guard let self = self else { return }
             
-            switch result {
-            case .success(let data):
+            if result.isSuccess {
                 // Save to storage
                 self.storage.saveStatus(
-                    statusCode: data.statusCode,
-                    batteryCharge: data.batteryCharge
+                    statusCode: result.statusCode,
+                    batteryCharge: result.batteryCharge
                 )
                 
                 // Check if status changed and show notification
-                if let previous = previousStatusCode, previous != data.statusCode {
+                if let previous = previousStatusCode, previous != result.statusCode {
                     self.notificationHelper.showStatusChangeNotification(
-                        statusCode: data.statusCode,
-                        batteryCharge: data.batteryCharge
+                        statusCode: result.statusCode,
+                        batteryCharge: result.batteryCharge
                     )
                 }
                 
@@ -117,8 +117,7 @@ class BackgroundTaskManager {
                 }
                 
                 completion?(true)
-                
-            case .failure:
+            } else {
                 completion?(false)
             }
         }
