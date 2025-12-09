@@ -165,12 +165,16 @@ class BackgroundTaskManager {
                     )
                 }
                 
-                // Update widget with specific kind for better reliability
-                WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
-                print("🔄 Widget timeline reloaded for InverterWidget")
+                // Force UserDefaults to sync before updating widget
+                UserDefaults(suiteName: "group.com.home.svitlo")?.synchronize()
                 
-                // Also reload all as backup
-                WidgetCenter.shared.reloadAllTimelines()
+                // Delay widget reload slightly to ensure data is written
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // Update widget
+                    WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
+                    WidgetCenter.shared.reloadAllTimelines()
+                    print("🔄 Widget timeline reloaded")
+                }
                 
                 completion?(true)
                 
