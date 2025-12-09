@@ -31,7 +31,7 @@ struct DebugView: View {
                 // Logs
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(logs.reversed(), id: \.self) { log in
+                        ForEach(Array(logs.reversed().enumerated()), id: \.offset) { index, log in
                             Text(log)
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.primary)
