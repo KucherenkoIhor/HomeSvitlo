@@ -30,9 +30,6 @@ struct Provider: TimelineProvider {
         let currentDate = Date()
         var entries: [InverterEntry] = []
         
-        // Log widget refresh to shared storage
-        logWidgetRefresh()
-        
         // Create entries for the next 60 minutes (one per minute)
         // This makes the "time ago" label update every minute
         for minuteOffset in 0..<60 {
@@ -44,34 +41,6 @@ struct Provider: TimelineProvider {
         // Request refresh after 15 minutes (iOS may delay this)
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
         completion(Timeline(entries: entries, policy: .after(nextUpdate)))
-    }
-    
-    private func logWidgetRefresh() {
-        guard let userDefaults = UserDefaults(suiteName: "group.com.home.svitlo") else { return }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss"
-        let timeStr = formatter.string(from: Date())
-        
-        var logs = userDefaults.stringArray(forKey: "debug_logs") ?? []
-        logs.append("[\(timeStr)] 📱 WIDGET getTimeline called")
-        
-        // Log what data widget is reading
-        if let data = userDefaults.data(forKey: "inverter_status"),
-           let status = try? JSONDecoder().decode(StoredStatus.self, from: data) {
-            let updatedTimeStr = formatter.string(from: status.lastUpdated)
-            logs.append("[\(timeStr)] 📱 WIDGET reads: bat=\(Int(status.batteryCharge))%, updated=\(updatedTimeStr)")
-        } else {
-            logs.append("[\(timeStr)] 📱 WIDGET: no data found!")
-        }
-        
-        // Keep last 50 logs
-        if logs.count > 50 {
-            logs = Array(logs.suffix(50))
-        }
-        
-        userDefaults.set(logs, forKey: "debug_logs")
-        userDefaults.synchronize()
     }
     
     private func createEntry(for date: Date) -> InverterEntry {

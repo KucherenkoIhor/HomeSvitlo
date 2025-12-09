@@ -10,7 +10,6 @@ class BackgroundTaskManager {
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
     private let apiClient = SolaxApiClient.shared
-    private let logger = DebugLogger.shared
     
     private init() {}
     
@@ -28,8 +27,6 @@ class BackgroundTaskManager {
         ) { task in
             self.handleProcessingTask(task: task as! BGProcessingTask)
         }
-        
-        logger.log("✅ Background tasks registered")
     }
     
     func scheduleBackgroundTask() {
@@ -45,9 +42,8 @@ class BackgroundTaskManager {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            logger.log("📅 Refresh task scheduled")
         } catch {
-            logger.log("❌ Refresh schedule failed: \(error.localizedDescription)")
+            print("Failed to schedule refresh task: \(error)")
         }
     }
     
@@ -61,83 +57,68 @@ class BackgroundTaskManager {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            logger.log("📅 Processing task scheduled")
         } catch {
-            logger.log("❌ Processing schedule failed: \(error.localizedDescription)")
+            print("Failed to schedule processing task: \(error)")
         }
     }
     
     private func handleRefreshTask(task: BGAppRefreshTask) {
-        logger.log("🔄 REFRESH TASK STARTED")
         scheduleRefreshTask()
         
         task.expirationHandler = {
-            self.logger.log("⚠️ Refresh task expired")
             task.setTaskCompleted(success: false)
         }
         
         fetchInverterStatus { success in
-            self.logger.log("✅ Refresh completed: \(success)")
             task.setTaskCompleted(success: success)
         }
     }
     
     private func handleProcessingTask(task: BGProcessingTask) {
-        logger.log("🔄 PROCESSING TASK STARTED")
         scheduleProcessingTask()
         
         task.expirationHandler = {
-            self.logger.log("⚠️ Processing task expired")
             task.setTaskCompleted(success: false)
         }
         
         fetchInverterStatus { success in
-            self.logger.log("✅ Processing completed: \(success)")
             task.setTaskCompleted(success: success)
         }
     }
     
     func fetchInverterStatus(completion: ((Bool) -> Void)? = nil) {
         let previousStatusCode = storage.getPreviousStatusCode()
-        logger.log("📡 Fetching... prev: \(previousStatusCode ?? "none")")
         
         apiClient.fetchInverterStatus { [weak self] result in
             guard let self = self else { return }
             
             switch result {
             case .success(let data):
-                self.logger.log("✅ API: status=\(data.statusCode), bat=\(Int(data.batteryCharge))%")
-                
                 // Save to storage
                 self.storage.saveStatus(
                     statusCode: data.statusCode,
                     batteryCharge: data.batteryCharge
                 )
                 
-                // Check if status changed
+                // Check if status changed and show notification
                 if let previous = previousStatusCode, previous != data.statusCode {
-                    self.logger.log("🔔 Status changed! \(previous) → \(data.statusCode)")
                     self.notificationHelper.showStatusChangeNotification(
                         statusCode: data.statusCode,
                         batteryCharge: data.batteryCharge
                     )
                 }
                 
-                // Force sync
+                // Force sync and reload widget
                 UserDefaults(suiteName: "group.com.home.svitlo")?.synchronize()
-                self.logger.log("💾 Data saved & synced")
                 
-                // Reload widget after delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
                     WidgetCenter.shared.reloadAllTimelines()
-                    self.logger.log("🔄 Widget reload requested")
                 }
                 
                 completion?(true)
                 
-            case .failure(let error):
-                self.logger.log("❌ API error: \(error.localizedDescription)")
+            case .failure:
                 completion?(false)
             }
         }
