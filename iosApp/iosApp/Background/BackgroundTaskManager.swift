@@ -1,7 +1,6 @@
 import Foundation
 import BackgroundTasks
 import WidgetKit
-import UserNotifications
 
 class BackgroundTaskManager {
     static let shared = BackgroundTaskManager()
@@ -11,11 +10,11 @@ class BackgroundTaskManager {
     private let storage = InverterStatusStorage.shared
     private let notificationHelper = NotificationHelper.shared
     private let apiClient = SolaxApiClient.shared
+    private let logger = DebugLogger.shared
     
     private init() {}
     
     func registerBackgroundTask() {
-        // Register refresh task
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: Self.refreshTaskIdentifier,
             using: nil
@@ -23,7 +22,6 @@ class BackgroundTaskManager {
             self.handleRefreshTask(task: task as! BGAppRefreshTask)
         }
         
-        // Register processing task (more reliable for periodic work)
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: Self.processingTaskIdentifier,
             using: nil
@@ -31,7 +29,7 @@ class BackgroundTaskManager {
             self.handleProcessingTask(task: task as! BGProcessingTask)
         }
         
-        print("✅ Background tasks registered")
+        logger.log("✅ Background tasks registered")
     }
     
     func scheduleBackgroundTask() {
@@ -47,9 +45,9 @@ class BackgroundTaskManager {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("✅ Refresh task scheduled for ~15 min")
+            logger.log("📅 Refresh task scheduled")
         } catch {
-            print("❌ Failed to schedule refresh task: \(error)")
+            logger.log("❌ Refresh schedule failed: \(error.localizedDescription)")
         }
     }
     
@@ -63,84 +61,52 @@ class BackgroundTaskManager {
         
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("✅ Processing task scheduled for ~15 min")
+            logger.log("📅 Processing task scheduled")
         } catch {
-            print("❌ Failed to schedule processing task: \(error)")
+            logger.log("❌ Processing schedule failed: \(error.localizedDescription)")
         }
     }
     
     private func handleRefreshTask(task: BGAppRefreshTask) {
-        print("🔄 Refresh task started at \(Date())")
+        logger.log("🔄 REFRESH TASK STARTED")
         scheduleRefreshTask()
         
         task.expirationHandler = {
-            print("⚠️ Refresh task expired")
+            self.logger.log("⚠️ Refresh task expired")
             task.setTaskCompleted(success: false)
         }
         
         fetchInverterStatus { success in
-            print("✅ Refresh task completed: \(success)")
+            self.logger.log("✅ Refresh completed: \(success)")
             task.setTaskCompleted(success: success)
         }
     }
     
     private func handleProcessingTask(task: BGProcessingTask) {
-        print("🔄 Processing task started at \(Date())")
+        logger.log("🔄 PROCESSING TASK STARTED")
         scheduleProcessingTask()
         
         task.expirationHandler = {
-            print("⚠️ Processing task expired")
+            self.logger.log("⚠️ Processing task expired")
             task.setTaskCompleted(success: false)
         }
         
         fetchInverterStatus { success in
-            print("✅ Processing task completed: \(success)")
-            task.setTaskCompleted(success: success)
-        }
-    }
-    
-    private func sendDebugNotification(message: String) {
-        let content = UNMutableNotificationContent()
-        content.title = "🔧 Debug"
-        content.body = message
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: nil
-        )
-        
-        UNUserNotificationCenter.current().add(request)
-    }
-    
-    private func handleBackgroundTask(task: BGAppRefreshTask) {
-        print("🔄 Background task started")
-        
-        // Schedule the next background task
-        scheduleBackgroundTask()
-        
-        task.expirationHandler = {
-            print("⚠️ Background task expired")
-            task.setTaskCompleted(success: false)
-        }
-        
-        fetchInverterStatus { success in
-            print("✅ Background task completed: \(success)")
+            self.logger.log("✅ Processing completed: \(success)")
             task.setTaskCompleted(success: success)
         }
     }
     
     func fetchInverterStatus(completion: ((Bool) -> Void)? = nil) {
         let previousStatusCode = storage.getPreviousStatusCode()
-        print("📡 Fetching inverter status... Previous: \(previousStatusCode ?? "none")")
+        logger.log("📡 Fetching... prev: \(previousStatusCode ?? "none")")
         
         apiClient.fetchInverterStatus { [weak self] result in
             guard let self = self else { return }
             
             switch result {
             case .success(let data):
-                print("✅ API Response: status=\(data.statusCode), battery=\(data.batteryCharge)")
+                self.logger.log("✅ API: status=\(data.statusCode), bat=\(Int(data.batteryCharge))%")
                 
                 // Save to storage
                 self.storage.saveStatus(
@@ -148,36 +114,30 @@ class BackgroundTaskManager {
                     batteryCharge: data.batteryCharge
                 )
                 
-                // Check if status changed and show notification
+                // Check if status changed
                 if let previous = previousStatusCode, previous != data.statusCode {
-                    print("🔔 Status changed from \(previous) to \(data.statusCode), showing notification")
+                    self.logger.log("🔔 Status changed! \(previous) → \(data.statusCode)")
                     self.notificationHelper.showStatusChangeNotification(
                         statusCode: data.statusCode,
                         batteryCharge: data.batteryCharge
                     )
                 }
                 
-                // Force UserDefaults to sync before updating widget
+                // Force sync
                 UserDefaults(suiteName: "group.com.home.svitlo")?.synchronize()
+                self.logger.log("💾 Data saved & synced")
                 
-                // Delay widget reload slightly to ensure data is written
+                // Reload widget after delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    // Update widget
                     WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
                     WidgetCenter.shared.reloadAllTimelines()
-                    print("🔄 Widget timeline reloaded")
-                    
-                    // Debug notification with actual data
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "HH:mm:ss"
-                    let timeStr = formatter.string(from: Date())
-                    self.sendDebugNotification(message: "[\(timeStr)] 🔋\(Int(data.batteryCharge))% Widget reloaded")
+                    self.logger.log("🔄 Widget reload requested")
                 }
                 
                 completion?(true)
                 
             case .failure(let error):
-                print("❌ Failed to fetch status: \(error.localizedDescription)")
+                self.logger.log("❌ API error: \(error.localizedDescription)")
                 completion?(false)
             }
         }
