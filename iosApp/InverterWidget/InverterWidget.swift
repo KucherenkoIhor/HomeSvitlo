@@ -56,6 +56,15 @@ struct Provider: TimelineProvider {
         var logs = userDefaults.stringArray(forKey: "debug_logs") ?? []
         logs.append("[\(timeStr)] 📱 WIDGET getTimeline called")
         
+        // Log what data widget is reading
+        if let data = userDefaults.data(forKey: "inverter_status"),
+           let status = try? JSONDecoder().decode(StoredStatus.self, from: data) {
+            let updatedTimeStr = formatter.string(from: status.lastUpdated)
+            logs.append("[\(timeStr)] 📱 WIDGET reads: bat=\(Int(status.batteryCharge))%, updated=\(updatedTimeStr)")
+        } else {
+            logs.append("[\(timeStr)] 📱 WIDGET: no data found!")
+        }
+        
         // Keep last 50 logs
         if logs.count > 50 {
             logs = Array(logs.suffix(50))
