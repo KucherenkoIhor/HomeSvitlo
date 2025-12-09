@@ -71,10 +71,6 @@ class BackgroundTaskManager {
     
     private func handleRefreshTask(task: BGAppRefreshTask) {
         print("🔄 Refresh task started at \(Date())")
-        
-        // Send debug notification to confirm task ran
-        sendDebugNotification(message: "Background refresh task running")
-        
         scheduleRefreshTask()
         
         task.expirationHandler = {
@@ -90,10 +86,6 @@ class BackgroundTaskManager {
     
     private func handleProcessingTask(task: BGProcessingTask) {
         print("🔄 Processing task started at \(Date())")
-        
-        // Send debug notification to confirm task ran
-        sendDebugNotification(message: "Background processing task running")
-        
         scheduleProcessingTask()
         
         task.expirationHandler = {
@@ -174,6 +166,12 @@ class BackgroundTaskManager {
                     WidgetCenter.shared.reloadTimelines(ofKind: "InverterWidget")
                     WidgetCenter.shared.reloadAllTimelines()
                     print("🔄 Widget timeline reloaded")
+                    
+                    // Debug notification with actual data
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "HH:mm:ss"
+                    let timeStr = formatter.string(from: Date())
+                    self.sendDebugNotification(message: "[\(timeStr)] 🔋\(Int(data.batteryCharge))% Widget reloaded")
                 }
                 
                 completion?(true)
